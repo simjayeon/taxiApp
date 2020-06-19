@@ -61,8 +61,7 @@ public class CustomerRegisterActivity extends AppCompatActivity {
                             DatabaseReference current_user_db = FirebaseDatabase.getInstance().getReference().child("Users").child("Customers").child(user_id);
                             current_user_db.setValue(true);
                             Toast.makeText(CustomerRegisterActivity.this, "회원가입 성공", Toast.LENGTH_SHORT).show();
-                            Toast.makeText(CustomerRegisterActivity.this, "로그인되었습니다.", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(CustomerRegisterActivity.this, CustomerMenuActivity.class);
+                            Intent intent = new Intent(CustomerRegisterActivity.this, CustomerLoginActivity.class);
                             startActivity(intent);
                             finish();
                             return;

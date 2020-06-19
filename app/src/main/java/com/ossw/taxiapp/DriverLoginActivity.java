@@ -52,65 +52,38 @@ public class DriverLoginActivity extends AppCompatActivity {
         d_register = (Button) findViewById(R.id.register);
         back = (Button) findViewById(R.id.back);
 
-/*
-        c_register.setOnClickListener(new View.OnClickListener() {
+
+        //회원가입
+        d_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CustomerLoginActivity.this, CustomerRegisterActivity.class);
+                Intent intent = new Intent(DriverLoginActivity.this, DriverRegisterActivity.class);
                 startActivity(intent);
                 finish();
                 return;
 
             }
         });
-*/
 
-        //회원가입
-        d_register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String email = d_email.getText().toString();
-                final String password = d_password.getText().toString();
-                mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(DriverLoginActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(!task.isSuccessful()){
-                            Toast.makeText(DriverLoginActivity.this, "회원가입 오류", Toast.LENGTH_SHORT).show();
-                        }else{
-                            String user_id = mAuth.getCurrentUser().getUid();
-                            DatabaseReference current_user_db = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(user_id).child("name");
-                            current_user_db.setValue(email);
-                            Toast.makeText(DriverLoginActivity.this, "회원가입 ", Toast.LENGTH_SHORT).show();
-                            Toast.makeText(DriverLoginActivity.this, "로그인되었습니다.", Toast.LENGTH_SHORT).show();
-                            /*
-                            Intent intent = new Intent(CustomerLoginActivity.this, CustomerMenuActivity.class);
-                            startActivity(intent);
-                            finish();
-                            return;
-                            */
-                        }
-                    }
-                });
-            }
-        });
 
 
         d_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String email = d_email.getText().toString();
+                final String id = d_email.getText().toString();
                 final String password = d_password.getText().toString();
-                mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(DriverLoginActivity.this, new OnCompleteListener<AuthResult>() {
+                mAuth.signInWithEmailAndPassword(id, password).addOnCompleteListener(DriverLoginActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(!task.isSuccessful()){
-                            Toast.makeText(DriverLoginActivity.this, "잘못된 아이디 및 패스워드입니다.", Toast.LENGTH_SHORT).show();
+                        if (!task.isSuccessful()) {
+                            Toast.makeText(DriverLoginActivity.this, "잘못된 이메일 및 패스워드입니다.", Toast.LENGTH_SHORT).show();
                         }else{
                             Toast.makeText(DriverLoginActivity.this, "로그인 성공", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(DriverLoginActivity.this, DriverMenuActivity.class);
+                            startActivity(intent);
                         }
                     }
                 });
-
             }
         });
 
@@ -126,8 +99,16 @@ public class DriverLoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mAuth.addAuthStateListener(firebaseAuthListener);
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            Toast.makeText(this, "자동 로그인 : " + user.getUid(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(DriverLoginActivity.this, DriverMenuActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
     }
+
     @Override
     protected void onStop() {
         super.onStop();
