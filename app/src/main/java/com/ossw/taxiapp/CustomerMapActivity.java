@@ -4,7 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
 import android.Manifest;
 import android.content.Intent;
@@ -40,8 +43,15 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.PlaceLikelihood;
+import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
+import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteFragment;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
@@ -56,6 +66,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class CustomerMapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
 
@@ -87,18 +99,19 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(CustomerMapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(CustomerMapActivity.this, new String[]{ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
         } else {
             mapFragment.getMapAsync(this);
         }
 
 
         //xml이랑 연결
-
+        //장소검색
         autocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
+        //프로필
         mDriverInfo = (LinearLayout) findViewById(R.id.driverInfo);
         d_profileimg = (ImageView) findViewById(R.id.d_profileimg);
         d_name = (TextView) findViewById(R.id.d_name);
@@ -107,11 +120,13 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
         d_callNum = (TextView) findViewById(R.id.d_callNum);
 
 
+        //버튼
         c_logout = (Button) findViewById(R.id.logout);
         request = (Button) findViewById(R.id.request);
         setting = (Button) findViewById(R.id.setting);
 
 
+        //장소검색
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
@@ -151,8 +166,8 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
                     driverLocationRef.removeEventListener(driverLocationRefListener);
 
                     if (driverFoundID != null) {
-                        DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundID);
-                        driverRef.setValue(true);
+                        DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundID).child("customerRequest");
+                        driverRef.removeValue();
                         driverFoundID = null;
                     }
                     driverFound = false;
@@ -230,6 +245,7 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
                     driverRef.updateChildren(map);
 
                     getDriverLocation();
+                    getDriverInfo();
                     request.setText("Looking for Driver Location....");
 
                 }
@@ -260,6 +276,39 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
         });
     }
 
+    /*
+    // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
+// and once again when the user makes a selection (for example when calling fetchPlace()).
+    AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
+    // Create a RectangularBounds object.
+    RectangularBounds bounds = RectangularBounds.newInstance(
+            new LatLng(-33.880490, 151.184363),
+            new LatLng(-33.858754, 151.229596));
+    // Use the builder to create a FindAutocompletePredictionsRequest.
+    FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
+// Call either setLocationBias() OR setLocationRestriction().
+            .setLocationBias(bounds)
+            //.setLocationRestriction(bounds)
+            .setCountry("au")
+            .setTypeFilter(TypeFilter.ADDRESS)
+            .setSessionToken(token)
+            .setQuery(query)
+            .build();
+
+        placesClient.findAutocompletePredictions(request).addOnSuccessListener((response) -> {
+        for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
+            Log.i(TAG, prediction.getPlaceId());
+            Log.i(TAG, prediction.getPrimaryText(null).toString());
+        }
+    }).addOnFailureListener((exception) -> {
+        if (exception instanceof ApiException) {
+            ApiException apiException = (ApiException) exception;
+            Log.e(TAG, "Place not found: " + apiException.getStatusCode());
+        }
+    });
+
+     */
+
 
     private void getDriverInfo() {
         mDriverInfo.setVisibility(View.VISIBLE);
@@ -277,7 +326,7 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
                     if (dataSnapshot.child("car") != null) {
                         d_car.setText(dataSnapshot.child("car").getValue().toString());
                     }
-                    if (dataSnapshot.child("car") != null) {
+                    if (dataSnapshot.child("carNum") != null) {
                         d_callNum.setText(dataSnapshot.child("callNum").getValue().toString());
                     }
                     if (dataSnapshot.child("profileImageUrl").getValue() != null) {
@@ -349,13 +398,10 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
                     mDriverMarker = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("your Driver").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_car)));
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
             }
         });
-
     }
 
 
@@ -364,8 +410,8 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(CustomerMapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(CustomerMapActivity.this, new String[]{ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
         }
         buildGoogleApiClient();
         mMap.setMyLocationEnabled(true);
@@ -402,8 +448,8 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
         mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(CustomerMapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(CustomerMapActivity.this, new String[]{ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }

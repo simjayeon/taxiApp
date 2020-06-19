@@ -78,8 +78,8 @@ public class DriverLoginActivity extends AppCompatActivity {
                             Toast.makeText(DriverLoginActivity.this, "회원가입 오류", Toast.LENGTH_SHORT).show();
                         }else{
                             String user_id = mAuth.getCurrentUser().getUid();
-                            DatabaseReference current_user_db = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(user_id);
-                            current_user_db.setValue(true);
+                            DatabaseReference current_user_db = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(user_id).child("name");
+                            current_user_db.setValue(email);
                             Toast.makeText(DriverLoginActivity.this, "회원가입 성공", Toast.LENGTH_SHORT).show();
                             Toast.makeText(DriverLoginActivity.this, "로그인되었습니다.", Toast.LENGTH_SHORT).show();
                             /*
