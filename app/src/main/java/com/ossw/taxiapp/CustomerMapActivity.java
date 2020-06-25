@@ -77,6 +77,7 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
     Location mLastLocation;
     LocationRequest mLocationRequest;
 
+
     private LinearLayout mDriverInfo;
     private Button c_logout, request, setting;
     private EditText where;
@@ -89,6 +90,7 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
     private RatingBar mRatingBar;
     private SupportMapFragment mapFragment;
     private AutocompleteSupportFragment autocompleteFragment;
+    private LatLng destinationLatLng;
 
 
     @Override
@@ -105,11 +107,16 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
             mapFragment.getMapAsync(this);
         }
 
+        destinationLatLng = new LatLng(0.0,0.0);
+
 
         //xml이랑 연결
         //장소검색
         autocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+
+        destinationLatLng = new LatLng(0.0,0.0);
+
 
         //프로필
         mDriverInfo = (LinearLayout) findViewById(R.id.driverInfo);
@@ -124,6 +131,7 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
         c_logout = (Button) findViewById(R.id.logout);
         request = (Button) findViewById(R.id.request);
         setting = (Button) findViewById(R.id.setting);
+        mRatingBar = (RatingBar) findViewById(R.id.ratingBar);
 
 
         //장소검색
@@ -133,9 +141,8 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
             public void onPlaceSelected (Place place){
                 // TODO: Get info about the selected place.
                 destination = place.getName().toString();
-                //destinationLatLng = place.getLatLng();
+                destinationLatLng = place.getLatLng();
             }
-
             @Override
             public void onError (Status status){
             }
@@ -161,27 +168,7 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
             @Override
             public void onClick(View v) {
                 if (requestBol) {
-                    requestBol = false;
-                    geoQuery.removeAllListeners();
-                    driverLocationRef.removeEventListener(driverLocationRefListener);
-
-                    if (driverFoundID != null) {
-                        DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundID).child("customerRequest");
-                        driverRef.removeValue();
-                        driverFoundID = null;
-                    }
-                    driverFound = false;
-                    radius = 1;
-                    String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("customerRequest");
-                    GeoFire geoFire = new GeoFire(ref);
-                    geoFire.removeLocation(userId);
-
-                    if (pickupMarker != null) {
-                        pickupMarker.remove();
-                    }
-                    request.setText("call van");
+                   endRide();
 
                 } else {
                     requestBol = true;
@@ -242,10 +229,13 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
                     HashMap map = new HashMap();
                     map.put("customerRideID", customerID);
                     map.put("destination", destination);
+                    map.put("destination", destinationLatLng.latitude);
+                    map.put("destination", destinationLatLng.longitude);
                     driverRef.updateChildren(map);
 
                     getDriverLocation();
                     getDriverInfo();
+                    getHasRideEnded();
                     request.setText("Looking for Driver Location....");
 
                 }
@@ -276,39 +266,6 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
         });
     }
 
-    /*
-    // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
-// and once again when the user makes a selection (for example when calling fetchPlace()).
-    AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
-    // Create a RectangularBounds object.
-    RectangularBounds bounds = RectangularBounds.newInstance(
-            new LatLng(-33.880490, 151.184363),
-            new LatLng(-33.858754, 151.229596));
-    // Use the builder to create a FindAutocompletePredictionsRequest.
-    FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
-// Call either setLocationBias() OR setLocationRestriction().
-            .setLocationBias(bounds)
-            //.setLocationRestriction(bounds)
-            .setCountry("au")
-            .setTypeFilter(TypeFilter.ADDRESS)
-            .setSessionToken(token)
-            .setQuery(query)
-            .build();
-
-        placesClient.findAutocompletePredictions(request).addOnSuccessListener((response) -> {
-        for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
-            Log.i(TAG, prediction.getPlaceId());
-            Log.i(TAG, prediction.getPrimaryText(null).toString());
-        }
-    }).addOnFailureListener((exception) -> {
-        if (exception instanceof ApiException) {
-            ApiException apiException = (ApiException) exception;
-            Log.e(TAG, "Place not found: " + apiException.getStatusCode());
-        }
-    });
-
-     */
-
 
     private void getDriverInfo() {
         mDriverInfo.setVisibility(View.VISIBLE);
@@ -321,7 +278,7 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
                         d_name.setText(dataSnapshot.child("name").getValue().toString());
                     }
                     if (dataSnapshot.child("phone") != null) {
-                        d_phone.setText(dataSnapshot.child("phone").getValue().toString());
+                            d_phone.setText(dataSnapshot.child("phone").getValue().toString());
                     }
                     if (dataSnapshot.child("car") != null) {
                         d_car.setText(dataSnapshot.child("car").getValue().toString());
@@ -403,6 +360,68 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
             }
         });
     }
+
+
+
+
+    private DatabaseReference driveHasEndedRef;
+    private ValueEventListener driveHasEndedRefListener;
+    private void getHasRideEnded(){
+        driveHasEndedRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundID).child("customerRequest").child("customerRideID");
+        driveHasEndedRefListener = driveHasEndedRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+
+                }else{
+                    endRide();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+
+
+    private void endRide(){
+        requestBol = false;
+        geoQuery.removeAllListeners();
+        driverLocationRef.removeEventListener(driverLocationRefListener);
+        driveHasEndedRef.removeEventListener(driveHasEndedRefListener);
+
+        if (driverFoundID != null) {
+            DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundID).child("customerRequest");
+            driverRef.removeValue();
+            driverFoundID = null;
+        }
+        driverFound = false;
+        radius = 1;
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("customerRequest");
+        GeoFire geoFire = new GeoFire(ref);
+        geoFire.removeLocation(userId);
+
+        if (pickupMarker != null) {
+            pickupMarker.remove();
+        }
+
+        if(mDriverMarker != null){
+            mDriverMarker.remove();
+        }
+        request.setText("call van");
+
+        mDriverInfo.setVisibility(View.GONE);
+        d_name.setText("");
+        d_phone.setText("");
+        d_car.setText("Destination: --");
+        d_callNum.setText("");
+        d_profileimg.setImageResource(R.mipmap.ic_launcher_foreground);
+
+    }
+
 
 
     //지도 준비
