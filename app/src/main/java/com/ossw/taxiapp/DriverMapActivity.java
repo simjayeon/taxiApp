@@ -14,8 +14,10 @@ import android.location.LocationListener;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,12 +68,13 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     private Button d_logout, setting, mRideStatus;
     private int status = 0;
     private String customerID = "", destination;
-    private LatLng destinationLatLog;
+    private LatLng destinationLatLog, pickupLatLng;
     private Boolean isLoggingOut = false;
     private SupportMapFragment mapFragment;
     private LinearLayout mCustomerInfo;
     private ImageView mCustomerProfileImg;
     private TextView mCustomerName, mCustomerDestination;
+    private Switch workingSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +99,23 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         mCustomerDestination = (TextView)findViewById(R.id.customerDestination);
         setting = (Button) findViewById(R.id.setting);
         mRideStatus = (Button) findViewById(R.id.rideStatus);
+        workingSwitch = (Switch)findViewById(R.id.workingSwitch);
+
+
+        //운행 스위치
+        workingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    connectDriver();
+                    Toast.makeText(DriverMapActivity.this,"운행을 시작합니다.",Toast.LENGTH_SHORT).show();
+                }else{
+                    disconectDriver();
+                }
+            }
+        });
+
+
 
         mRideStatus.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,9 +165,6 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         });
         getAssignCustomer();
     }
-
-
-
 
 
 
@@ -223,9 +240,9 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     if(map.get(1) != null){
                         locationLng = Double.parseDouble(map.get(0).toString());
                     }
-                    LatLng driverLatLng = new LatLng(locationLat, locationLng);
-                    pickupMarker = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("pickup Location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker)));
-                    getRouteToMarker(driverLatLng);
+                    pickupLatLng = new LatLng(locationLat, locationLng);
+                    pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("pickup Location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker)));
+                    getRouteToMarker(pickupLatLng);
 
                 }
             }
@@ -325,11 +342,19 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         map.put("driver",userId);
         map.put("customer", customerID);
         map.put("rating",0);
+        map.put("timestamp",getCurrentTimestamp());
+        map.put("location/from/lat", pickupLatLng.latitude);
+        map.put("location/from/lng", pickupLatLng.longitude);
+        map.put("location/to/lat", destinationLatLog.latitude);
+        map.put("location/to/lng", destinationLatLog.longitude);
         historyRef.child(requestId).updateChildren(map);
 
     }
 
-
+    private Long getCurrentTimestamp() {
+        Long timestamp = System.currentTimeMillis()/1000;
+        return timestamp;
+    }
 
 
     //지도 준비
@@ -397,11 +422,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(DriverMapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
-        }
 
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     @Override
@@ -410,6 +431,13 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+    }
+
+    private void connectDriver(){
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(DriverMapActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
 
@@ -439,16 +467,6 @@ final int LOCATION_REQUEST_CODE = 1;
             }
         }
     }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if(!isLoggingOut){
-            disconectDriver();
-        }
-
-    }
-
 
     //라우팅리스너
     private List<Polyline> polylines;
