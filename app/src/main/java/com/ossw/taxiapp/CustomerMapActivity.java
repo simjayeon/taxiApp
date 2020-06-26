@@ -94,7 +94,6 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
     private String destination;
     private RatingBar mRatingBar;
     private SupportMapFragment mapFragment;
-    private AutocompleteSupportFragment autocompleteFragment;
     private LatLng destinationLatLng;
 
 
@@ -120,7 +119,6 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
         /*
         autocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
-
          */
 
 

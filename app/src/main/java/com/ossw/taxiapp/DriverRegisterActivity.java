@@ -61,6 +61,7 @@ public class DriverRegisterActivity extends AppCompatActivity {
                             DatabaseReference current_user_db = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(user_id);
                             current_user_db.setValue(true);
                             Toast.makeText(DriverRegisterActivity.this, "회원가입 성공", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DriverRegisterActivity.this, "프로필을 입력하세요.", Toast.LENGTH_LONG).show();
 
                             Intent intent = new Intent(DriverRegisterActivity.this, DriverLoginActivity.class);
                             startActivity(intent);
@@ -77,6 +78,7 @@ public class DriverRegisterActivity extends AppCompatActivity {
         d_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(DriverRegisterActivity.this, "가입이 취소되었습니다.", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(DriverRegisterActivity.this, DriverLoginActivity.class);
                 startActivity(intent);
                 finish();

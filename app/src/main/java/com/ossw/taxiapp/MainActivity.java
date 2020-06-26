@@ -19,6 +19,8 @@ public class MainActivity extends AppCompatActivity {
         Driver = (Button) findViewById(R.id.driver);
         Customer = (Button) findViewById(R.id.customer);
 
+        startService(new Intent(MainActivity.this, onAppKilled.class));
+
         //기사로그인
         Driver.setOnClickListener(new View.OnClickListener(){
             @Override

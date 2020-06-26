@@ -42,7 +42,6 @@ public class DriverMenuActivity extends AppCompatActivity {
         workOn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(DriverMenuActivity.this,"운행을 시작합니다.",Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(DriverMenuActivity.this, DriverMapActivity.class);
                 startActivity(intent);
                 finish();

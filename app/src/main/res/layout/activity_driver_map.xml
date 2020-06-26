@@ -5,30 +5,53 @@
     android:layout_height="match_parent"
     tools:context=".DriverMapActivity">
 
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/logout"
-        android:text="운행종료"
-        android:background="#f8dd43"/>
-
-
-    <Button
-        android:layout_alignParentRight="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/setting"
-        android:text="프로필"
-        android:layout_gravity="right"
-        android:background="#f8dd43"/>
-
-
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/logout"
+                android:text="운행종료"
+                android:background="#f8dd43"
+                android:layout_marginRight="10sp"/>
+
+
+            <Button
+                android:layout_weight="1"
+                android:layout_alignParentRight="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/setting"
+                android:text="프로필"
+                android:layout_gravity="right"
+                android:background="#f8dd43"/>
+
+        </LinearLayout>
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="운행  "
+            android:layout_margin="10sp"
+            android:id="@+id/workingSwitch"/>
+
+    </LinearLayout>
+
+
 
     <LinearLayout
         android:layout_width="match_parent"

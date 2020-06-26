@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +51,7 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
     private SupportMapFragment mMapFragment;
     private DatabaseReference historyRideInfoDb;
     private LatLng destinationLatLng, pickupLatLng;
+    private RatingBar ratingBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,7 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
         dateRide = (TextView)findViewById(R.id.rideDate);
         nameUser = (TextView)findViewById(R.id.userName);
         imageUser = (ImageView)findViewById(R.id.userImage);
+        ratingBar = (RatingBar)findViewById(R.id.ratingBar);
 
         currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         historyRideInfoDb = FirebaseDatabase.getInstance().getReference().child("history").child(rideID);
@@ -91,11 +95,15 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
                             if (!driverId.equals(currentUserID)) {
                                 userDriverOrCustomer = "Customers";
                                 getUserInformation("Drivers", driverId);
+                                displayCustomerRelateObjects();
                             }
                         }
 
                         if(child.getKey().equals("timestamp")) {
                             dateRide.setText(getDate(Long.valueOf(child.getValue().toString())));
+                        }
+                        if(child.getKey().equals("rating")) {
+                            ratingBar.setRating(Integer.valueOf(child.getValue().toString()));
                         }
                         if(child.getKey().equals("destination")) {
                             locationRide.setText(getDate(Long.valueOf(child.getValue().toString())));
@@ -116,6 +124,18 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
+            }
+        });
+    }
+
+    private void displayCustomerRelateObjects() {
+        ratingBar.setVisibility(View.VISIBLE);
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                historyRideInfoDb.child("rating").setValue(rating);
+                DatabaseReference mDriverRatingDB = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverId).child("rating");
+                mDriverRatingDB.child(rideID).setValue(rating);
             }
         });
     }
