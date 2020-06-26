@@ -16,38 +16,66 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        //로그아웃
-        <Button
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/logout"
-            android:text="Logout"/>
+            android:id="@+id/buttons">
+
+        //뒤로가기
+        <Button
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:id="@+id/back"
+            android:text="뒤로가기"
+            android:background="#f8dd43"/>
 
         //프로필설정
         <Button
-            android:layout_alignParentRight="true"
-            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
             android:id="@+id/setting"
-            android:text="setting"
-            android:layout_gravity="right"/>
+            android:text="프로필"
+            android:background="#f8dd43"/>
+
+            <Button
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/history"
+                android:text="탑승기록"
+                android:background="#f8dd43"/>
+
+        </LinearLayout>
+
 
         //카드뷰
         <androidx.cardview.widget.CardView
-            android:layout_below="@+id/setting"
+            android:layout_below="@+id/buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin = "20sp"
+            android:layout_marginTop="10dp"
             android:id="@+id/cardview">
 
-            <fragment android:id="@+id/autocomplete_fragment"
-                android:layout_width="match_parent"
+            <EditText
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
-                />
+                android:hint="목적지"
+                android:id="@+id/goal"/>
 
+            <Button
+                android:id="@+id/search"
+                android:layout_width="wrap_content"
+                android:layout_height="35sp"
+                android:layout_gravity="right"
+                android:background="#f8dd43"
+                android:text="검색" />
 
         </androidx.cardview.widget.CardView>
+
 
 
     </RelativeLayout>
@@ -125,7 +153,8 @@
         android:layout_height="wrap_content"
         android:text="call van"
         android:id="@+id/request"
-        android:layout_gravity="bottom"/>
+        android:layout_gravity="bottom"
+        android:background="#f8dd43"/>
 
         </LinearLayout>
     </FrameLayout>

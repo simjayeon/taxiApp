@@ -27,15 +27,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@null"
-        android:hint="전화번호"
-        android:layout_marginBottom="20sp"
-        android:id="@+id/d_phone"
-        android:inputType="phone"/>
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@null"
         android:hint="차량번호"
         android:layout_marginBottom="20sp"
         android:id="@+id/d_car" />
@@ -53,12 +44,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/confirm"
-        android:text="등록"/>
+        android:text="등록"
+        android:background="#f8dd43"
+        android:layout_marginBottom="10dp"/>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/back"
-        android:text="취소"/>
+        android:text="취소"
+        android:background="#f8dd43"/>
 
 </LinearLayout>

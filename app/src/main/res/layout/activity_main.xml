@@ -36,7 +36,7 @@
     <Button
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:text="학생이에용"
+        android:text="승객이에용"
         android:id="@+id/customer"
         android:background="#f8dd43"
         android:layout_marginTop="10dp"

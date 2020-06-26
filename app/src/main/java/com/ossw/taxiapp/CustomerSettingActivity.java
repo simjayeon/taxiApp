@@ -40,7 +40,6 @@ public class CustomerSettingActivity extends AppCompatActivity {
     private DatabaseReference mCustomerDatabase;
     private String userID;
     private String name;
-    private String phone;
     private ImageView mProfileImage;
     private String mProfileImageUrl;
     private Uri resultUri;
@@ -52,7 +51,6 @@ public class CustomerSettingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_customer_setting);
 
         c_name = (EditText) findViewById (R.id.c_name);
-        c_phone = (EditText) findViewById(R.id.c_phone);
         confirm = (Button) findViewById(R.id.confirm);
         back = (Button)findViewById(R.id.back);
         mProfileImage = (ImageView) findViewById(R.id.profileImage);
@@ -101,10 +99,7 @@ public class CustomerSettingActivity extends AppCompatActivity {
                         name = map.get("name").toString();
                         c_name.setText(name);
                     }
-                    if(map.get("phone")!=null){
-                        phone = map.get("phone").toString();
-                        c_phone.setText(phone);
-                    }
+
                     if(map.get("profileImageUrl")!=null){
                         mProfileImageUrl = map.get("profileImageUrl").toString();
                         Glide.with(getApplication()).load(mProfileImageUrl).into(mProfileImage);
@@ -124,11 +119,9 @@ public class CustomerSettingActivity extends AppCompatActivity {
     private void saveUserInformation() {
 
         name = c_name.getText().toString();
-        phone = c_phone.getText().toString();
 
         Map userInfo = new HashMap();
         userInfo.put("name", name);
-        userInfo.put("phone", phone);
         mCustomerDatabase.updateChildren(userInfo);
 
         if(resultUri != null) {

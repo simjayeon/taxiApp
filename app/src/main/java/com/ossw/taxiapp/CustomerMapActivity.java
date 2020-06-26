@@ -12,6 +12,8 @@ import com.google.android.libraries.places.api.Places;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -63,6 +65,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -79,9 +82,9 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
 
 
     private LinearLayout mDriverInfo;
-    private Button c_logout, request, setting;
-    private EditText where;
-    private TextView d_name, d_phone, d_car, d_callNum;
+    private Button back, request, setting, mhistory, search;
+    private EditText goal;
+    private TextView d_name, d_car, d_callNum;
     private ImageView d_profileimg;
     private LatLng pickupLocation;
     private Boolean requestBol = false;
@@ -112,29 +115,36 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
 
         //xml이랑 연결
         //장소검색
+        /*
         autocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
-        destinationLatLng = new LatLng(0.0,0.0);
+         */
 
+
+        destinationLatLng = new LatLng(0.0,0.0);
 
         //프로필
         mDriverInfo = (LinearLayout) findViewById(R.id.driverInfo);
         d_profileimg = (ImageView) findViewById(R.id.d_profileimg);
         d_name = (TextView) findViewById(R.id.d_name);
-        d_phone = (TextView) findViewById(R.id.d_phone);
         d_car = (TextView) findViewById(R.id.d_car);
         d_callNum = (TextView) findViewById(R.id.d_callNum);
 
 
         //버튼
-        c_logout = (Button) findViewById(R.id.logout);
+        back = (Button) findViewById(R.id.back);
         request = (Button) findViewById(R.id.request);
         setting = (Button) findViewById(R.id.setting);
         mRatingBar = (RatingBar) findViewById(R.id.ratingBar);
+        mhistory = (Button) findViewById(R.id.history);
+        search = (Button) findViewById(R.id.search);
 
+
+        goal = (EditText)findViewById(R.id.goal);
 
         //장소검색
+        /*
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
@@ -148,15 +158,16 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
             }
         });
 
+         */
 
-        //승객 로그아웃
-        c_logout.setOnClickListener(new View.OnClickListener() {
+
+
+        //뒤로가기
+        back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(CustomerMapActivity.this, MainActivity.class);
+                Intent intent = new Intent(CustomerMapActivity.this, CustomerMenuActivity.class);
                 startActivity(intent);
-                Toast.makeText(CustomerMapActivity.this, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show();
                 finish();
                 return;
             }
@@ -175,14 +186,17 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
 
                     String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("customerRequest");
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("customerRequest").child("Current Location");
                     GeoFire geoFire = new GeoFire(ref);
                     geoFire.setLocation(userId, new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
 
                     pickupLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
                     pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLocation).title("pickup Here").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker)));
 
-                    request.setText("Getting your Driver.....");
+                    // 해당 좌표로 화면 줌
+                    //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 15));
+
+                    request.setText("호출 중...");
 
                     getClosestDriver();
                 }
@@ -195,6 +209,15 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(CustomerMapActivity.this, CustomerSettingActivity.class);
+                startActivity(intent);
+                return;
+            }
+        });
+
+        mhistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CustomerMapActivity.this, HistoryActivity.class);
                 startActivity(intent);
                 return;
             }
@@ -236,7 +259,7 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
                     getDriverLocation();
                     getDriverInfo();
                     getHasRideEnded();
-                    request.setText("Looking for Driver Location....");
+                    request.setText("기사 위치 찾는 중....");
 
                 }
             }
@@ -276,9 +299,6 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
                 if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                     if (dataSnapshot.child("name") != null) {
                         d_name.setText(dataSnapshot.child("name").getValue().toString());
-                    }
-                    if (dataSnapshot.child("phone") != null) {
-                            d_phone.setText(dataSnapshot.child("phone").getValue().toString());
                     }
                     if (dataSnapshot.child("car") != null) {
                         d_car.setText(dataSnapshot.child("car").getValue().toString());
@@ -415,7 +435,6 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
 
         mDriverInfo.setVisibility(View.GONE);
         d_name.setText("");
-        d_phone.setText("");
         d_car.setText("Destination: --");
         d_callNum.setText("");
         d_profileimg.setImageResource(R.mipmap.ic_launcher_foreground);
@@ -425,16 +444,74 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
 
 
     //지도 준비
+    private Geocoder geocoder;
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        geocoder = new Geocoder(this);
 
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(CustomerMapActivity.this, new String[]{ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
         }
         buildGoogleApiClient();
         mMap.setMyLocationEnabled(true);
+
+
+        // 검색 버튼 이벤트
+        search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+/*
+                String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("customerRequest").child("Destination");
+                GeoFire geoFire = new GeoFire(ref);
+                geoFire.setLocation(userId, new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+
+ */
+
+
+                String str = goal.getText().toString();
+                List<Address> addressList = null;
+                try {
+
+                    addressList = geocoder.getFromLocationName(
+                            str, // 주소
+                            10); // 최대 검색 결과 개수
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                System.out.println(addressList.get(0).toString());
+                // 콤마를 기준으로 split
+                String[] splitStr = addressList.get(0).toString().split(",");
+                String address = splitStr[0].substring(splitStr[0].indexOf("\"") +
+                        1, splitStr[0].length() - 2); // 주소
+                System.out.println(address);
+                String latitude = splitStr[10].substring(splitStr[10].indexOf("=")
+                        + 1); // 위도
+                String longitude = splitStr[12].substring(splitStr[12].indexOf("=")
+                        + 1); // 경도
+                System.out.println(latitude);
+                System.out.println(longitude);
+
+                // 좌표(위도, 경도) 생성
+                LatLng point = new LatLng(Double.parseDouble(latitude),
+                        Double.parseDouble(longitude));
+                // 마커 생성
+                MarkerOptions mOptions1 = new MarkerOptions();
+                mOptions1.title("출발지");
+                mOptions1.snippet(address);
+                mOptions1.position(point);
+
+                mMap.addMarker(mOptions1);
+                // 해당 좌표로 화면 줌
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 15));
+
+
+            }
+        });
+
     }
+
 
 
     //위치
@@ -472,11 +549,6 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
-
-
-
-
-
 
 
 

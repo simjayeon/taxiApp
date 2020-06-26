@@ -91,6 +91,9 @@ public class DriverLoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(DriverLoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+                return;
             }
         });
     }

@@ -51,6 +51,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +71,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     private SupportMapFragment mapFragment;
     private LinearLayout mCustomerInfo;
     private ImageView mCustomerProfileImg;
-    private TextView mCustomerName, mCustomerPhone, mCustomerDstination;
+    private TextView mCustomerName, mCustomerDestination;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,8 +93,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         mCustomerInfo = (LinearLayout) findViewById (R.id.customerInfo);
         mCustomerProfileImg = (ImageView) findViewById (R.id.c_profileimg);
         mCustomerName = (TextView) findViewById (R.id.customerName);
-        mCustomerPhone = (TextView) findViewById(R.id.customerPhone);
-        //mCustomerDstination = (TextView)findViewById(R.id.customereDestination);
+        mCustomerDestination = (TextView)findViewById(R.id.customerDestination);
         setting = (Button) findViewById(R.id.setting);
         mRideStatus = (Button) findViewById(R.id.rideStatus);
 
@@ -110,6 +110,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                         mRideStatus.setText("drive completed");
                         break;
                     case 2:
+                        recordRide();
                         endRide();
                         break;
                 }
@@ -124,14 +125,10 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             @Override
             public void onClick(View v) {
                 isLoggingOut = true;
-
                 disconectDriver();
-
                 FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(DriverMapActivity.this, MainActivity.class);
-                startActivity(intent);
-                Toast.makeText(DriverMapActivity.this, "로그아웃되었습니다.", Toast.LENGTH_SHORT).show();
-                return;
+                Toast.makeText(DriverMapActivity.this,"운행을 종료합니다.",Toast.LENGTH_SHORT).show();
+                finish();
             }
         });
 
@@ -189,9 +186,6 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     Map<String, Object> map = (Map<String, Object>)dataSnapshot.getValue();
                     if(map.get("name")!=null){
                         mCustomerName.setText(map.get("name").toString());
-                    }
-                    if(map.get("phone")!=null){
-                        mCustomerPhone.setText(map.get("phone").toString());
                     }
                     if(map.get("profileImageUrl")!=null){
                         Glide.with(getApplication()).load(map.get("profileImageUrl").toString()).into(mCustomerProfileImg);
@@ -265,10 +259,10 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                 Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
                 if(map.get("destination")!=null){
                     destination = map.get("destination").toString();
-                    mCustomerDstination.setText("Destination:: "+ destination);
+                    mCustomerDestination.setText("Destination:: "+ destination);
                 }
                 else{
-                    mCustomerDstination.setText("Destination: --");
+                    mCustomerDestination.setText("Destination: --");
                 }
                 Double destinationLat = 0.0;
                 Double destinationLng = 0.0;
@@ -312,9 +306,27 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         }
         mCustomerInfo.setVisibility(View.GONE);
         mCustomerName.setText("");
-        mCustomerPhone.setText("");
-        mCustomerDstination.setText("Destination: --");
+        mCustomerDestination.setText("Destination: --");
         mCustomerProfileImg.setImageResource(R.mipmap.ic_launcher_foreground);
+    }
+
+
+
+    private void recordRide(){
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userId).child("history");
+        DatabaseReference customerRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Customers").child(customerID).child("history");
+        DatabaseReference historyRef = FirebaseDatabase.getInstance().getReference().child("history");
+        String requestId = historyRef.push().getKey();
+        driverRef.child(requestId).setValue(true);
+        customerRef.child(requestId).setValue(true);
+
+        HashMap map = new HashMap();
+        map.put("driver",userId);
+        map.put("customer", customerID);
+        map.put("rating",0);
+        historyRef.child(requestId).updateChildren(map);
+
     }
 
 

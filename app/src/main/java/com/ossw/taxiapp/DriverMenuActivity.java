@@ -12,7 +12,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class DriverMenuActivity extends AppCompatActivity {
 
-    private Button workOn, workOff, d_logout;
+    private Button workOn,  d_logout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,7 +20,6 @@ public class DriverMenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_driver_menu);
 
         workOn = (Button)findViewById(R.id.workOn);
-        workOff = (Button)findViewById(R.id.workOff);
 
 
 
@@ -51,13 +50,7 @@ public class DriverMenuActivity extends AppCompatActivity {
             }
         });
 
-        workOff.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //데이터베이스에 실행 기록
-                Toast.makeText(DriverMenuActivity.this,"운행을 종료합니다.",Toast.LENGTH_SHORT).show();
-                return;
-            }
-        });
+
+
     }
 }

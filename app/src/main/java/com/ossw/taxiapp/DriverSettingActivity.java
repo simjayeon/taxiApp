@@ -37,7 +37,7 @@ import java.util.Map;
 public class DriverSettingActivity extends AppCompatActivity {
 
     private ImageView ProfileImg;
-    private EditText d_name, d_phone, d_car, d_callNum;
+    private EditText d_name, d_car, d_callNum;
     private Button d_confirm, d_back;
     private Uri resultUri;
 
@@ -59,7 +59,6 @@ public class DriverSettingActivity extends AppCompatActivity {
         ProfileImg = (ImageView) findViewById(R.id.profileImage);
 
         d_name = (EditText)findViewById(R.id.d_name);
-        d_phone = (EditText)findViewById(R.id.d_phone);
         d_car = (EditText)findViewById(R.id.d_car);
         d_callNum = (EditText)findViewById(R.id.d_callNum);
 
@@ -107,10 +106,6 @@ public class DriverSettingActivity extends AppCompatActivity {
                         name = map.get("name").toString();
                         d_name.setText(name);
                     }
-                    if(map.get("phone")!=null){
-                        phone = map.get("phone").toString();
-                        d_phone.setText(phone);
-                    }
                     if(map.get("car")!=null){
                         car = map.get("car").toString();
                         d_car.setText(car);
@@ -137,13 +132,11 @@ public class DriverSettingActivity extends AppCompatActivity {
 
     private void saveUserInformation() {
         name = d_name.getText().toString();
-        phone = d_phone.getText().toString();
         car = d_car.getText().toString();
         callNum = d_callNum.getText().toString();
 
         Map userInfo = new HashMap();
         userInfo.put("name", name);
-        userInfo.put("phone", phone);
         userInfo.put("car", car);
         userInfo.put("callNum", callNum);
         mDriverDatabase.updateChildren(userInfo);

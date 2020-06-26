@@ -10,7 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/logout"
-        android:text="Logout"/>
+        android:text="운행종료"
+        android:background="#f8dd43"/>
 
 
     <Button
@@ -18,8 +19,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/setting"
-        android:text="setting"
-        android:layout_gravity="right"/>
+        android:text="프로필"
+        android:layout_gravity="right"
+        android:background="#f8dd43"/>
 
 
     <fragment
@@ -60,7 +62,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/customerDastination"
+                android:id="@+id/customerDestination"
                 android:paddingBottom="10sp"
                 android:text="Destination: --"/>
 
@@ -84,7 +86,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="picked customer"
-            android:id="@+id/rideStatus"/>
+            android:id="@+id/rideStatus"
+            android:background="#f8dd43"/>
         
     </LinearLayout>
 </FrameLayout>
