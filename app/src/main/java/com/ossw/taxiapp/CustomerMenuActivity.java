@@ -12,7 +12,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class CustomerMenuActivity extends AppCompatActivity {
 
-    private Button call, together, paytable, mbox, c_logout;
+    private Button call, together, paytable, c_logout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +44,16 @@ public class CustomerMenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(CustomerMenuActivity.this, CustomerMapActivity.class);
+                startActivity(intent);
+                finish();
+                return;
+            }
+        });
+
+        together.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CustomerMenuActivity.this, CustomerCommunityActivity.class);
                 startActivity(intent);
                 finish();
                 return;
