@@ -66,7 +66,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     private Button d_logout, setting, mRideStatus;
     private int status = 0;
     private String customerID = "", destination;
-    private LatLng destinationLatLog;
+    private LatLng destinationLatLog, pickupLatLng;
     private Boolean isLoggingOut = false;
     private SupportMapFragment mapFragment;
     private LinearLayout mCustomerInfo;
@@ -223,9 +223,9 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     if(map.get(1) != null){
                         locationLng = Double.parseDouble(map.get(0).toString());
                     }
-                    LatLng driverLatLng = new LatLng(locationLat, locationLng);
-                    pickupMarker = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("pickup Location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker)));
-                    getRouteToMarker(driverLatLng);
+                    pickupLatLng = new LatLng(locationLat, locationLng);
+                    pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("pickup Location").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker)));
+                    getRouteToMarker(pickupLatLng);
 
                 }
             }
@@ -325,11 +325,19 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         map.put("driver",userId);
         map.put("customer", customerID);
         map.put("rating",0);
+        map.put("timestamp",getCurrentTimestamp());
+        map.put("location/from/lat", pickupLatLng.latitude);
+        map.put("location/from/lng", pickupLatLng.longitude);
+        map.put("location/to/lat", destinationLatLog.latitude);
+        map.put("location/to/lng", destinationLatLog.longitude);
         historyRef.child(requestId).updateChildren(map);
 
     }
 
-
+    private Long getCurrentTimestamp() {
+        Long timestamp = System.currentTimeMillis()/1000;
+        return timestamp;
+    }
 
 
     //지도 준비

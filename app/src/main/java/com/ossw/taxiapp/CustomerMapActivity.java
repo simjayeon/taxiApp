@@ -8,6 +8,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.libraries.places.api.Places;
 import android.Manifest;
 import android.content.Intent;
@@ -218,6 +220,7 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(CustomerMapActivity.this, HistoryActivity.class);
+                intent.putExtra("customerOrDriver", "Customers");
                 startActivity(intent);
                 return;
             }
@@ -461,14 +464,6 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-/*
-                String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("customerRequest").child("Destination");
-                GeoFire geoFire = new GeoFire(ref);
-                geoFire.setLocation(userId, new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
-
- */
-
 
                 String str = goal.getText().toString();
                 List<Address> addressList = null;
@@ -493,25 +488,28 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
                 System.out.println(latitude);
                 System.out.println(longitude);
 
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                builder.include(destinationLatLng);
+                LatLngBounds bounds = builder.build();
+
                 // 좌표(위도, 경도) 생성
                 LatLng point = new LatLng(Double.parseDouble(latitude),
                         Double.parseDouble(longitude));
-                // 마커 생성
-                MarkerOptions mOptions1 = new MarkerOptions();
-                mOptions1.title("출발지");
-                mOptions1.snippet(address);
-                mOptions1.position(point);
 
-                mMap.addMarker(mOptions1);
-                // 해당 좌표로 화면 줌
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 15));
+                int width = getResources().getDisplayMetrics().widthPixels;
+                int padding = (int) (width*0.2);
+
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+
+                mMap.animateCamera(cameraUpdate);
+
+                mMap.addMarker(new MarkerOptions().position(destinationLatLng).title("destination").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker)));
 
 
             }
         });
 
     }
-
 
 
     //위치

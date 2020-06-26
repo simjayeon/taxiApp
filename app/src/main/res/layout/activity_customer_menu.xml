@@ -50,13 +50,5 @@
         android:layout_marginTop="20dp"
         android:layout_gravity="center"/>
 
-    <Button
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:text="쪽지함"
-        android:id="@+id/mbox"
-        android:background="#f8dd43"
-        android:layout_marginTop="20dp"
-        android:layout_gravity="center"/>
 
 </LinearLayout>
