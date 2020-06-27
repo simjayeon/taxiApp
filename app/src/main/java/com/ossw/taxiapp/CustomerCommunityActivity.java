@@ -40,7 +40,7 @@ public class CustomerCommunityActivity extends AppCompatActivity implements View
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_customer_community);
 
         mPostRecyclerView = findViewById(R.id.main_recyclerview);
 
