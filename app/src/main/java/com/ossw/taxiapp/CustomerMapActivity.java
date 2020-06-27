@@ -193,8 +193,8 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
                     pickupLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
                     pickupMarker = mMap.addMarker(new MarkerOptions().position(pickupLocation).title("pickup Here").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker)));
 
-                    // 해당 좌표로 화면 줌
-                    //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 15));
+                    //해당 좌표로 화면 줌
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pickupLocation, 15));
 
                     request.setText("호출 중...");
 

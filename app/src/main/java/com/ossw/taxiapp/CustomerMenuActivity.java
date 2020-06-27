@@ -22,7 +22,7 @@ public class CustomerMenuActivity extends AppCompatActivity {
         call = (Button)findViewById(R.id.call);
         together = (Button)findViewById(R.id.together);
         c_logout = (Button) findViewById(R.id.back);
-
+        paytable = (Button)findViewById(R.id.paytable);
 
         //승객 로그아웃
         c_logout.setOnClickListener(new View.OnClickListener() {
@@ -54,6 +54,16 @@ public class CustomerMenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(CustomerMenuActivity.this, CustomerCommunityActivity.class);
+                startActivity(intent);
+                finish();
+                return;
+            }
+        });
+
+        paytable.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CustomerMenuActivity.this, PaytableActivity.class);
                 startActivity(intent);
                 finish();
                 return;
