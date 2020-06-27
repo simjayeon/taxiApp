@@ -33,11 +33,12 @@ public class CustomerRegisterActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         firebaseAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    @Override
+                    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             }
         };
+
 
 
         c_email = (EditText) findViewById(R.id.email);

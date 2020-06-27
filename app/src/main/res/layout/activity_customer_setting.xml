@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:background="@null"
         android:hint="닉네임"
+        android:text="customer"
         android:layout_marginBottom="20sp"
         android:id="@+id/c_name"/>
 
