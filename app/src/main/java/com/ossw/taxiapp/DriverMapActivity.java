@@ -180,6 +180,13 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     getAssignCustomerPickupLocation();
                     getAssignCustomerDestination();
                     getAssignCustomerInfo();
+
+                    mRideStatus.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            endRide();
+                        }
+                    });
                 }else{
                     endRide();
                 }
