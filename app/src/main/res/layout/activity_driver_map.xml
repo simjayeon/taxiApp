@@ -27,17 +27,25 @@
                 android:id="@+id/logout"
                 android:text="운행종료"
                 android:background="#f8dd43"
-                android:layout_marginRight="10sp"/>
+                android:layout_marginRight="3sp"/>
 
 
             <Button
                 android:layout_weight="1"
-                android:layout_alignParentRight="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/setting"
                 android:text="프로필"
-                android:layout_gravity="right"
+                android:background="#f8dd43"
+                android:layout_marginRight="3sp"/>
+
+
+            <Button
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/history"
+                android:text="운행기록"
                 android:background="#f8dd43"/>
 
         </LinearLayout>

@@ -77,49 +77,49 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
     }
 
     private void getRideInformation() {
-        historyRideInfoDb.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    for(DataSnapshot child : dataSnapshot.getChildren()){
-                        if(child.getKey().equals("customer")){
-                            customerId = child.getValue().toString();
-                            if(!customerId.equals(currentUserID)){
-                                userDriverOrCustomer = "Drivers";
-                                getUserInformation("Customers", customerId);
-                            }
-                        }
+                historyRideInfoDb.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()){
+                            for(DataSnapshot child : dataSnapshot.getChildren()){
+                                if(child.getKey().equals("customer")){
+                                    customerId = child.getValue().toString();
+                                    if(!customerId.equals(currentUserID)){
+                                        userDriverOrCustomer = "Drivers";
+                                        getUserInformation("Customers", customerId);
+                                    }
+                                }
 
-                        if(child.getKey().equals("driver")) {
-                            driverId = child.getValue().toString();
-                            if (!driverId.equals(currentUserID)) {
-                                userDriverOrCustomer = "Customers";
-                                getUserInformation("Drivers", driverId);
-                                displayCustomerRelateObjects();
-                            }
-                        }
+                                if(child.getKey().equals("driver")) {
+                                    driverId = child.getValue().toString();
+                                    if (!driverId.equals(currentUserID)) {
+                                        userDriverOrCustomer = "Customers";
+                                        getUserInformation("Drivers", driverId);
+                                        displayCustomerRelateObjects();
+                                    }
+                                }
 
-                        if(child.getKey().equals("timestamp")) {
-                            dateRide.setText(getDate(Long.valueOf(child.getValue().toString())));
-                        }
-                        if(child.getKey().equals("rating")) {
-                            ratingBar.setRating(Integer.valueOf(child.getValue().toString()));
-                        }
-                        if(child.getKey().equals("destination")) {
-                            locationRide.setText(getDate(Long.valueOf(child.getValue().toString())));
+                                if(child.getKey().equals("timestamp")) {
+                                    dateRide.setText(getDate(Long.valueOf(child.getValue().toString())));
+                                }
+                                if(child.getKey().equals("rating")) {
+                                    ratingBar.setRating(Integer.valueOf(child.getValue().toString()));
+                                }
+                                if(child.getKey().equals("destination")) {
+                                    locationRide.setText(getDate(Long.valueOf(child.getValue().toString())));
 
-                        }
-                        if(child.getKey().equals("location")) {
-                            locationRide.setText(getDate(Long.valueOf(child.getValue().toString())));
-                            pickupLatLng = new LatLng(Double.valueOf(child.child("from").child("lat").getValue().toString()),Double.valueOf(child.child("from").child("lng").getValue().toString()));
-                            destinationLatLng = new LatLng(Double.valueOf(child.child("to").child("lat").getValue().toString()),Double.valueOf(child.child("to").child("lng").getValue().toString()));
-                            if(destinationLatLng != new LatLng(0,0)){
-                                getRouteToMarker();
+                                }
+                                if(child.getKey().equals("location")) {
+                                    locationRide.setText(getDate(Long.valueOf(child.getValue().toString())));
+                                    pickupLatLng = new LatLng(Double.valueOf(child.child("from").child("lat").getValue().toString()),Double.valueOf(child.child("from").child("lng").getValue().toString()));
+                                    destinationLatLng = new LatLng(Double.valueOf(child.child("to").child("lat").getValue().toString()),Double.valueOf(child.child("to").child("lng").getValue().toString()));
+                                    if(destinationLatLng != new LatLng(0,0)){
+                                        getRouteToMarker();
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
