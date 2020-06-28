@@ -92,7 +92,6 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         }
 
 
-
         mCustomerInfo = (LinearLayout) findViewById (R.id.customerInfo);
         mCustomerProfileImg = (ImageView) findViewById (R.id.c_profileimg);
         mCustomerName = (TextView) findViewById (R.id.customerName);
@@ -139,7 +138,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
 
 
-        //기사 로그아웃
+        //기사 운행종료
         d_logout = (Button)findViewById(R.id.logout);
         d_logout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -164,6 +163,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             }
         });
         getAssignCustomer();
+
     }
 
 
@@ -184,6 +184,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     mRideStatus.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            recordRide();
                             endRide();
                         }
                     });
