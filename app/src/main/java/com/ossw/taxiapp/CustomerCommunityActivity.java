@@ -6,10 +6,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.Query;
 import com.ossw.taxiapp.adapters.PostAdapter;
 import com.ossw.taxiapp.models.Post;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -27,12 +31,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class CustomerCommunityActivity extends AppCompatActivity implements View.OnClickListener {
+public class CustomerCommunityActivity extends AppCompatActivity {
 
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore mStore = FirebaseFirestore.getInstance();
 
     private RecyclerView mPostRecyclerView;
+
+    private FloatingActionButton edit;
+    private Button back;
 
     private PostAdapter mAdapter;
     private List<Post> mDatas;
@@ -44,13 +50,55 @@ public class CustomerCommunityActivity extends AppCompatActivity implements View
 
         mPostRecyclerView = findViewById(R.id.main_recyclerview);
 
-        findViewById(R.id.main_post_edit).setOnClickListener(this);
+        edit = (FloatingActionButton)findViewById(R.id.main_post_edit);
+        back = (Button)findViewById(R.id.back);
+
+        edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CustomerCommunityActivity.this, PostActivity.class);
+                startActivity(intent);
+                finish();
+                return;
+            }
+        });
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CustomerCommunityActivity.this, CustomerMenuActivity.class);
+                startActivity(intent);
+                finish();
+                return;
+            }
+        });
     }
 
-
-
     @Override
-    public void onClick(View v) {
-        startActivity(new Intent(this, PostActivity.class));
+    protected void onStart() {
+        super.onStart();
+        mDatas = new ArrayList<>();
+        mStore.collection(FirebaseID.post)
+                .orderBy(FirebaseID.timestamp, Query.Direction.DESCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        if (queryDocumentSnapshots != null) {
+                            mDatas.clear(); //clear 안하면 중복되게 불러옴
+                            for(DocumentSnapshot snap : queryDocumentSnapshots.getDocuments()) {
+                                Map<String, Object> shot = snap.getData();
+                                String documentId = String.valueOf(shot.get(FirebaseID.documentId));
+                                String title = String.valueOf(shot.get(FirebaseID.title));
+                                String contents = String.valueOf(shot.get(FirebaseID.contents));
+                                Post data = new Post(documentId, title, contents);
+                                mDatas.add(data);
+                            }
+
+                            mAdapter = new PostAdapter(mDatas);
+                            mPostRecyclerView.setAdapter(mAdapter);
+                        }
+                    }
+                }); //실시간으로 불러오기 위한 코드드
+
     }
 }
