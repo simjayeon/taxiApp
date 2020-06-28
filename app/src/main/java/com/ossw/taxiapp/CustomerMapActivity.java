@@ -105,7 +105,8 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
-        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(CustomerMapActivity.this, new String[]{ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
         } else {
             mapFragment.getMapAsync(this);
@@ -157,7 +158,6 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
             public void onError (Status status){
             }
         });
-
          */
 
 
@@ -179,7 +179,7 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
             @Override
             public void onClick(View v) {
                 if (requestBol) {
-                   endRide();
+                    endRide();
 
                 } else {
                     requestBol = true;
@@ -371,8 +371,6 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
                     } else {
                         request.setText("Driver Found: " + String.valueOf(distance));
                     }
-
-
                     mDriverMarker = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("your Driver").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_car)));
                 }
             }
@@ -451,7 +449,8 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
         mMap = googleMap;
         geocoder = new Geocoder(this);
 
-        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(CustomerMapActivity.this, new String[]{ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
         }
         buildGoogleApiClient();
@@ -466,7 +465,6 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
                 String str = goal.getText().toString();
                 List<Address> addressList = null;
                 try {
-
                     addressList = geocoder.getFromLocationName(
                             str, // 주소
                             10); // 최대 검색 결과 개수
@@ -489,18 +487,13 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
                 builder.include(destinationLatLng);
                 LatLngBounds bounds = builder.build();
-
                 // 좌표(위도, 경도) 생성
                 LatLng point = new LatLng(Double.parseDouble(latitude),
                         Double.parseDouble(longitude));
-
                 int width = getResources().getDisplayMetrics().widthPixels;
                 int padding = (int) (width*0.2);
-
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-
                 mMap.animateCamera(cameraUpdate);
-
                 mMap.addMarker(new MarkerOptions().position(destinationLatLng).title("destination").icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker)));
 
 
@@ -521,7 +514,7 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
     }
 
 
-    //위치 변경
+
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
@@ -532,7 +525,7 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
         mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
     }
 
-    //지도 서비스 연결
+
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         mLocationRequest = new LocationRequest();
@@ -582,6 +575,3 @@ public class CustomerMapActivity extends FragmentActivity implements OnMapReadyC
 
 
 }
-
-
-

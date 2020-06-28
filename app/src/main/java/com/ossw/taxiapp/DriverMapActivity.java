@@ -181,8 +181,8 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     getAssignCustomerDestination();
                     getAssignCustomerInfo();
                 }else{
-                   endRide();
-                    }
+                    endRide();
+                }
             }
 
             @Override
@@ -254,7 +254,6 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     }
 
 
-    //경로 마커
     private void getRouteToMarker(LatLng driverLatLng) {
         Routing routing = new Routing.Builder()
                 .travelMode(AbstractRouting.TravelMode.DRIVING)
@@ -451,7 +450,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
 
 
-final int LOCATION_REQUEST_CODE = 1;
+    final int LOCATION_REQUEST_CODE = 1;
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -468,11 +467,11 @@ final int LOCATION_REQUEST_CODE = 1;
         }
     }
 
-    //라우팅리스너
+
     private List<Polyline> polylines;
     private static final int [] COLORS = new int[]{
             R.color.primary_dark_material_light};
-   @Override
+    @Override
     public void onRoutingFailure(RouteException e) {
         if(e != null){
             Toast.makeText(this, "Error: "+e.getMessage(), Toast.LENGTH_LONG).show();
@@ -516,9 +515,9 @@ final int LOCATION_REQUEST_CODE = 1;
 
     }
     private void erasePolylines(){
-       for(Polyline line : polylines){
-           line.remove();
-       }
-       polylines.clear();
+        for(Polyline line : polylines){
+            line.remove();
+        }
+        polylines.clear();
     }
 }
